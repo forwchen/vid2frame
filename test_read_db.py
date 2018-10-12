@@ -15,7 +15,7 @@ if db.endswith('hdf5'):
         for fid in db_vid:
             s = np.asarray(db_vid[fid]).tostring()
             try:
-                Image.open(StringIO(s))
+                img = Image.open(StringIO(s))
             except:
                 print 'reading failed for %s/%s' % (vid, fid)
 
@@ -29,13 +29,13 @@ else:  # assuming LMDB
             k,v = cur.key(), cur.value()
 
             try:
-                Image.open(StringIO(v))
+                img = Image.open(StringIO(v))
             except:
                 print 'reading failed for %s' % k
 
             f = cur.next()
 
-
+print img.size
 
 
 
