@@ -7,7 +7,7 @@ Basically, this is a python wrapper of ffmpeg which addtionally stores the frame
 * Storing millions of frames on disk makes subsequent processing SLOW.
 
 ## Usage
-1. Split video dataset into multiple (if necessary) splits with `split_video_dataset.py`
+### 1. Split video dataset into multiple (if necessary) splits with `split_video_dataset.py`
 ```
 usage: split_video_dataset.py [-h] vid_dir num_splits split_file
 
@@ -31,7 +31,7 @@ split-1 : 1
 Joined splits: 2
 ```
 
-2. Extract frames for videos in a specific split using `vid2frame.py`
+### 2. Extract frames for videos in a specific split using `vid2frame.py`
 ```
 usage: vid2frame.py [-h] [-a] [-s SHORT] [-H HEIGHT] [-W WIDTH] [-k SKIP]
                     [-n NUM_FRAME]
@@ -63,7 +63,7 @@ optional arguments:
 * The frames are in JPEG format, with JPEG quality ~95. Note the `-qscale:v 2` option in `vid2frame.py`. This is **important** for subsequent deep learning tasks.
 * The database to use is either LMDB or HDF5, choose one according to:
     * Reading from HDF5 is convenient, if you do not plan to use [Tensorpack](https://tensorpack.readthedocs.io/_modules/tensorpack/dataflow/format.html#HDF5Data), which does not support HDF5 well currently, always choose HDF5.
-    * LMDB integrates better with [Tensorpack](https://tensorpack.readthedocs.io/modules/dataflow.html#tensorpack.dataflow.LMDBData), but reading from it is less flexible.
+    * LMDB integrates better with [Tensorpack](https://tensorpack.readthedocs.io/modules/dataflow.html#tensorpack.dataflow.LMDBData), but reading from it is less flexible (though much much faster than HDF5).
 * Resizing options (exclusive):
     1. Do not resize (--asis)
     2. Resize the shorter edge and keep aspect ratio (the longer edge adapts) (--short)
@@ -89,6 +89,18 @@ You can also process the other split simultaneously:
 **Note** that the output databases for different splits should not be the same in case concurrent write is no supported.
 
 More samples:
+
 `python vid2frame.py split-sample.pkl split-0 frames-0.lmdb LMDB --asis`
 
 `python vid2frame.py split-sample.pkl split-0 frames-0.lmdb LMDB -H 240 -W 360`
+
+### 3. (Optional) Test reading from databse using `test_read_db.py`
+`test_read_db.py` provides sample code to iterate, read and decode frames in databases, it also check for broken images.
+#### Note
+* Opening images from string buffer: `img = Image.open(StringIO(v))`
+* Reading string from HDF5 db: `s = np.asarray(db_vid[fid]).tostring()`
+
+#### Sample usage
+`python test_read_db.py frames-1.lmdb` or `python test_read_db.py frames-0.hdf5`
+
+The script outputs the size of the last image and time to iterate over whole database.
