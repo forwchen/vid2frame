@@ -8,7 +8,7 @@ Basically, this is a python wrapper of ffmpeg which addtionally stores the frame
 * Common mistakes I once made:
     * Decode all frames (using scikit-video) and store them into a **LARGE** .npy file, nice way to blow up the disk.
     * Extract all frames using ffmpeg and write to disk. Takes **foreeeeever** to move or delete.
-    * Extract JPEG frames using ffmpeg but ignores the JPEG **quality**. For deep learning and computer vision, a good quality of images (JPEG quality >= 95) is required. 
+    * Extract JPEG frames using ffmpeg but ignores the JPEG **quality**. For deep learning and computer vision, a good quality of images (JPEG quality around 95) is required. 
 
 * Good practice in my opinion:
     * Add `-qscale:v 2` to ffmpeg command.
