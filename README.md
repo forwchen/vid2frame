@@ -14,6 +14,7 @@ Basically, this is a python wrapper of ffmpeg which addtionally stores the frame
     * Add `-qscale:v 2` to ffmpeg command.
     * Store extracted frames into a database, LMDB or HDF5.
     * (Optional) Use [Tensorpack dataflow](https://tensorpack.readthedocs.io/modules/dataflow.html) to accelerate reading from the database.
+    * Suggestions are welcome.
 
 ## Usage
 ### 1. Split video dataset into multiple (if necessary) splits with `split_video_dataset.py`
@@ -68,7 +69,7 @@ optional arguments:
                         uniformly sample n frames, this will override --skip
 ```
 #### Notes
-* The frames will be stored as strings of their binary content, i.e. they are NOT decoded.
+* The frames will be stored as strings of their binary content, i.e. they are NOT decoded. Both LMDB and HDF5 are key-value storage, the keys are in the format of `video_name/frame_id` (assuming there are no two videos with the same name).
 * The frames are in JPEG format, with JPEG quality ~95. Note the `-qscale:v 2` option in `vid2frame.py`. This is **important** for subsequent deep learning tasks.
 * The database to use is either LMDB or HDF5, choose one according to:
     * Reading from HDF5 is convenient, if you do not plan to use [Tensorpack](https://tensorpack.readthedocs.io/_modules/tensorpack/dataflow/format.html#HDF5Data), which does not support HDF5 well currently, always choose HDF5.
