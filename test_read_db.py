@@ -1,4 +1,5 @@
 import sys
+import time
 import lmdb
 import h5py
 import numpy as np
@@ -7,6 +8,7 @@ from cStringIO import StringIO
 
 db = sys.argv[1]
 
+t0 = time.time()
 
 if db.endswith('hdf5'):
     frame_db = h5py.File(db, 'r')
@@ -35,8 +37,8 @@ else:  # assuming LMDB
 
             f = cur.next()
 
-print img.size
-
+print 'Size:', img.size
+print 'Time:', time.time() - t0
 
 
 
