@@ -3,8 +3,17 @@ An easy-to-use tool to extract frames from video and store into database.
 Basically, this is a python wrapper of ffmpeg which addtionally stores the frames into database.
 
 ## Why this tool
-* Extracting frames from (hundreds of thousands) videos is tedious.
+* Extracting frames from large video datasets (usually 10k ~ 100k, hundreds of GBs on disk) is tedious.
 * Storing millions of frames on disk makes subsequent processing SLOW.
+* Common mistakes I once made:
+    * Decode all frames (using scikit-video) and store them into a **LARGE** .npy file, nice way to blow up the disk.
+    * Extract all frames using ffmpeg and write to disk. Takes **foreeeeever** to move or delete.
+    * Extract JPEG frames using ffmpeg but ignores the JPEG **quality**. For deep learning and computer vision, a good quality of images (JPEG quality >= 95) is required. 
+
+* Good practice in my opinion:
+    * Add `-qscale:v 2` to ffmpeg command.
+    * Store extracted frames into a database, LMDB or HDF5.
+    * (Optional) Use [Tensorpack dataflow](https://tensorpack.readthedocs.io/modules/dataflow.html) to accelerate reading from the database.
 
 ## Usage
 ### 1. Split video dataset into multiple (if necessary) splits with `split_video_dataset.py`
@@ -82,11 +91,11 @@ The output would be:
 ['split-0', 'split-1'] using split-0
 100%|█████████████████████████████| 1/1 [00:02<00:00,  2.05s/it]
 ```
-You can also process the other split simultaneously:
+You can also process the other split simultaneously, for large video datasets, 6~8-split is recommended for a server with 40 CPUs:
 
 `python vid2frame.py split-sample.pkl split-1 frames-1.hdf5 HDF5 --short=240`
 
-**Note** that the output databases for different splits should not be the same in case concurrent write is no supported.
+Note that the output databases for different splits should not be the same in case concurrent write is no supported.
 
 More samples:
 
@@ -94,8 +103,8 @@ More samples:
 
 `python vid2frame.py split-sample.pkl split-0 frames-0.lmdb LMDB -H 240 -W 360`
 
-### 3. (Optional) Test reading from databse using `test_read_db.py`
-`test_read_db.py` provides sample code to iterate, read and decode frames in databases, it also check for broken images.
+### 3. (Optional) Test reading from database using `test_read_db.py`
+`test_read_db.py` provides sample code to iterate, read and decode frames in databases, it also checks for broken images.
 #### Note
 * Opening images from string buffer: `img = Image.open(StringIO(v))`
 * Reading string from HDF5 db: `s = np.asarray(db_vid[fid]).tostring()`
