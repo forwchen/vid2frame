@@ -3,7 +3,7 @@ An easy-to-use tool to extract frames from video and store into database.
 Basically, this is a python wrapper of ffmpeg which addtionally stores the frames into database.
 
 ## Why this tool
-* Extracting frames from large video datasets (usually 10k ~ 100k, hundreds of GBs on disk) is tedious.
+* Extracting frames from large video datasets (usually 10k ~ 100k, hundreds of GBs on disk) is tedious, automate it.
 * Storing millions of frames on disk makes subsequent processing SLOW.
 * Common mistakes I once made:
     * Decode all frames (using scikit-video) and store them into a **LARGE** .npy file, nice way to blow up the disk.
