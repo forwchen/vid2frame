@@ -114,3 +114,8 @@ More samples:
 `python test_read_db.py frames-1.lmdb` or `python test_read_db.py frames-0.hdf5`
 
 The script outputs the size of the last image and time to iterate over whole database.
+
+## Dependencies
+* Python 2.7
+* FFmpeg: Install on [Ubuntu](https://tecadmin.net/install-ffmpeg-on-linux/). Other [platforms](https://www.google.com/).
+* Python libraries: `pip install -r requirements.txt`, 
