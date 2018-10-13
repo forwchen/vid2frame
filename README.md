@@ -12,7 +12,7 @@ Basically, this is a python wrapper of ffmpeg which addtionally stores the frame
 
 * Good practice in my opinion:
     * Add `-qscale:v 2` to ffmpeg command.
-    * Store extracted frames into a database, LMDB or HDF5.
+    * Store extracted frames into a database, [LMDB](https://lmdb.readthedocs.io/en/release/) or [HDF5](http://docs.h5py.org/en/stable/).
     * (Optional) Use [Tensorpack dataflow](https://tensorpack.readthedocs.io/modules/dataflow.html) to accelerate reading from the database.
     * Suggestions are welcome.
 
