@@ -41,6 +41,12 @@ split-1 : 1
 Joined splits: 2
 ```
 
+#### Notes
+* Video files are identified with extensions, currently recognizing `['.mp4', '.avi', '.flv', '.mkv', '.webm', '.mov']`.
+
+* Videos with the same name (without extension) are considered duplicates. Only one of them will be processed.
+
+
 ### 2. Extract frames for videos in a specific split using `vid2frame.py`
 ```
 usage: vid2frame.py [-h] [-a] [-s SHORT] [-H HEIGHT] [-W WIDTH] [-k SKIP]
@@ -119,3 +125,9 @@ The script outputs the size of the last image and time to iterate over whole dat
 * Python 2.7
 * FFmpeg: Install on [Ubuntu](https://tecadmin.net/install-ffmpeg-on-linux/). Other [platforms](https://www.google.com/).
 * Python libraries: `pip install -r requirements.txt`, 
+
+
+## Common issues
+* `RuntimeError: Unable to create link (name already exists)`
+
+This is caused by writing duplicate frames to a non-empty HDF5 database.
