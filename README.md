@@ -3,7 +3,7 @@ An easy-to-use tool to extract frames from video and store into database.
 Basically, this is a python wrapper of ffmpeg which addtionally stores the frames into database.
 
 ## Why this tool
-* Extracting frames from large video datasets (usually 10k ~ 100k, hundreds of GBs on disk) is tedious.
+* Extracting frames from large video datasets (usually 10k ~ 100k, hundreds of GBs on disk) is tedious, automate it.
 * Storing millions of frames on disk makes subsequent processing SLOW.
 * Common mistakes I once made:
     * Decode all frames (using scikit-video) and store them into a **LARGE** .npy file, nice way to blow up the disk.
@@ -11,8 +11,8 @@ Basically, this is a python wrapper of ffmpeg which addtionally stores the frame
     * Extract JPEG frames using ffmpeg but ignores the JPEG **quality**. For deep learning and computer vision, a good quality of images (JPEG quality around 95) is required. 
 
 * Good practice in my opinion:
-    * Add `-qscale:v 2` to ffmpeg command.
-    * Store extracted frames into a database, LMDB or HDF5.
+    * Add `-qscale:v 2` to [ffmpeg](https://stackoverflow.com/questions/10225403/how-can-i-extract-a-good-quality-jpeg-image-from-an-h264-video-file-with-ffmpeg) command.
+    * Store extracted frames into a database, [LMDB](https://lmdb.readthedocs.io/en/release/) or [HDF5](http://docs.h5py.org/en/stable/).
     * (Optional) Use [Tensorpack dataflow](https://tensorpack.readthedocs.io/modules/dataflow.html) to accelerate reading from the database.
     * Suggestions are welcome.
 
