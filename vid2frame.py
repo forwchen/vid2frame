@@ -54,11 +54,14 @@ is_lmdb = (args.db_type == 'LMDB')
 
 tmp_dir = '/tmp'
 
+done_videos = set()
 
 for vid in tqdm(all_videos, ncols=64):
     #vvid = vid.split('/')[-1].split('.')[0]
     vvid, _ = os.path.splitext(vid) # discard extension
     _, vvid = os.path.split(vvid)   # get filename without path
+    if vvid in done_videos:
+        print 'video %s seen before, ignored.' % vvid
 
     v_dir = os.path.join(tmp_dir, vvid)
     call(["rm", "-rf", v_dir])
@@ -116,6 +119,7 @@ for vid in tqdm(all_videos, ncols=64):
             frame_db[key] = np.void(s)
 
     call(["rm", "-rf", v_dir])
+    done_videos.add(vvid)
 
 
 

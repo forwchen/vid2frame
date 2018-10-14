@@ -17,14 +17,21 @@ video_ext = set(['.mp4', '.avi', '.flv', '.mkv', '.webm', '.mov'])
 files = check_output(["find", vid_dir, "-type", "f"])
 files = files.split('\n')
 videos = []
+names = []
 for f in files:
     name, ext = os.path.splitext(f)
     if ext in video_ext:
         videos.append(f)
+        names.append(name)
 
+n_video = len(videos)
+n_uniq = len(set(names))
 
-print 'Number of videos found: %d' % (len(videos))
-print 'Number of unique videos: %s' % (len(set(videos)))
+print 'Number of videos found: %d' % (n_video)
+print 'Number of unique videos: %s' % (n_uniq)
+
+if n_video != n_uniq:
+    print 'Warning: there are duplicate videos, will be ignored.'
 
 splits = {}
 for i in range(args.num_splits):
