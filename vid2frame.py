@@ -30,12 +30,12 @@ parser.add_argument("-W", "--width", type=int, default=0, help="the resized widt
 # frame sampling options
 parser.add_argument("-k", "--skip", type=int, default=1, help="only store frames with (ID-1) mod skip==0, frame ID starts from 1")
 parser.add_argument("-n", "--num_frame", type=int, default=-1, help="uniformly sample n frames, this will override --skip")
-parser.add_argument("-r","--interval", type=int, default=0, help="extract images from video every r frames")
+parser.add_argument("-r", "--interval", type=int, default=0, help="extract one frame every r seconds")
 
 args = parser.parse_args()
 
 def get_frame_rate(vid):
-    call = ["ffprobe","-v","quiet","-show_entries","stream=r_frame_rate","-print_format","json",vid]
+    call = ["ffprobe","-v", "quiet", "-show_entries", "stream=r_frame_rate", "-print_format", "json", vid]
     output = subprocess.check_output(call)
     output = json.loads(output)
     r_frame_rate = 0
@@ -64,7 +64,7 @@ if args.height > 0 or args.width > 0:
 
 
 split = pickle.load(open(args.split_file,'rb'))
-print split.keys(), 'using %s' %(args.split)
+print(split.keys(), 'using %s' %(args.split))
 all_videos = split[args.split]
 
 if args.db_type == 'LMDB':
@@ -72,7 +72,7 @@ if args.db_type == 'LMDB':
 elif args.db_type == 'HDF5':
     frame_db = h5py.File(args.frame_db, 'a') # append mode
 else:
-    print 'Unknown db_type'
+    raise Exception('Unknown db_type')
     sys.exit(1)
 
 is_lmdb = (args.db_type == 'LMDB')
@@ -92,40 +92,39 @@ for vid in tqdm(all_videos, ncols=64):
     call(["rm", "-rf", v_dir])
     os.mkdir(v_dir)    # caching directory to store ffmpeg extracted frames
 
-
     if args.asis:
-        call(["ffmpeg", "-loglevel", "panic", "-i", vid, "-qscale:v", "2", v_dir+"/%8d.jpg"])
-
+        vf_scale = []
     elif args.short > 0:
-        call(["ffmpeg",
-                "-loglevel", "panic",
-                "-i", vid,
-                "-vf", "scale='iw*1.0/min(iw,ih)*%d':'ih*1.0/min(iw,ih)*%d'" % (args.short, args.short),
-                "-qscale:v", "2",
-                v_dir+"/%8d.jpg"])
-
-    elif args.interval > 0:
-        basename = os.path.basename(vid).split('.')[0]
-	r_frame_rate = get_frame_rate(vid)
-	if r_frame_rate == 0:
-	    print "frame rate is 0, skip: %s"%vid
-	    continue
-	call(["ffmpeg",
-		"-loglevel","panic",
-		"-i",vid,
-		"-vf","scale=%d:%d" % (args.width,args.height),
-		"-vf","select=not(mod(n\,%d*%f))" % (args.interval,r_frame_rate),
-                "-vsync","vfr",
-		"-qscale:v","2",
-		v_dir+"/%6d.jpg"])
-    
+        vf_scale = ["-vf",
+                    "scale='iw*1.0/min(iw,ih)*%d':'ih*1.0/min(iw,ih)*%d'" \
+                            % (args.short, args.short)]
+    elif args.height > 0 and args.width > 0:
+        vf_scale = ["-vf", "scale=%d:%d" % (args.width, args.height)]
     else:
-        call(["ffmpeg",
-                "-loglevel", "panic",
-                "-i", vid,
-                "-vf", "scale=%d:%d" % (args.width, args.height),
-                "-qscale:v", "2",
-                v_dir+"/%8d.jpg"])
+        raise Exception('Unspecified frame scale option')
+
+    if args.interval > 0:
+        r_frame_rate = get_frame_rate(vid)
+        if r_frame_rate == 0:
+            print("frame rate is 0, skip: %s"%vid)
+            continue
+        vf_sample = ["-vsync","vfr",
+                     "-vf","select=not(mod(n\,%d))" % (int(round(args.interval*r_frame_rate)))]
+        assert args.num_frame <= 0 and args.skip == 1, \
+                "No other sampling options are allowed when --interval is set"
+    else:
+        vf_sample = []
+
+    call(["ffmpeg",
+            "-loglevel", "panic",
+            "-i", vid,
+            ]
+            + vf_scale
+            + vf_sample
+            +
+            [
+            "-qscale:v", "2",
+            v_dir+"/%8d.jpg"])
 
     sample = (args.num_frame > 0)
     if sample:
@@ -158,7 +157,7 @@ for vid in tqdm(all_videos, ncols=64):
             key = "%s/%08d" % (vvid, fid)   # by padding zeros, frames in db are stored in order
             frame_db[key] = np.void(s)
 
-    call(["rm", "-rf", v_dir])
+    #call(["rm", "-rf", v_dir])
     done_videos.add(vvid)
 
 

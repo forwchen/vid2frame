@@ -9,6 +9,7 @@ from cStringIO import StringIO
 db = sys.argv[1]
 
 t0 = time.time()
+N = 0
 
 if db.endswith('hdf5'):
     frame_db = h5py.File(db, 'r')
@@ -18,6 +19,7 @@ if db.endswith('hdf5'):
             s = np.asarray(db_vid[fid]).tostring()
             try:
                 img = Image.open(StringIO(s))
+                N += 1
             except:
                 print 'reading failed for %s/%s' % (vid, fid)
 
@@ -32,11 +34,13 @@ else:  # assuming LMDB
 
             try:
                 img = Image.open(StringIO(v))
+                N += 1
             except:
                 print 'reading failed for %s' % k
 
             f = cur.next()
 
+print 'Num image:', N
 print 'Size:', img.size
 print 'Time:', time.time() - t0
 
