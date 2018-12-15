@@ -4,6 +4,9 @@ import lmdb
 import h5py
 import numpy as np
 import argparse
+import subprocess
+import json
+
 from tqdm import tqdm
 from subprocess import call
 import cPickle as pickle
@@ -27,7 +30,29 @@ parser.add_argument("-W", "--width", type=int, default=0, help="the resized widt
 # frame sampling options
 parser.add_argument("-k", "--skip", type=int, default=1, help="only store frames with (ID-1) mod skip==0, frame ID starts from 1")
 parser.add_argument("-n", "--num_frame", type=int, default=-1, help="uniformly sample n frames, this will override --skip")
+parser.add_argument("-r","--interval", type=int, default=0, help="extract images from video every r frames")
+
 args = parser.parse_args()
+
+def get_frame_rate(vid):
+    call = ["ffprobe","-v","quiet","-show_entries","stream=r_frame_rate","-print_format","json",vid]
+    output = subprocess.check_output(call)
+    output = json.loads(output)
+    r_frame_rate = 0
+    if len(output.keys()) == 0:
+        return r_frame_rate
+    elif output['streams'] == []:
+        return r_frame_rate
+
+    for line in output['streams']:
+        nums = line['r_frame_rate'].split('/')
+        if float(nums[1]) == 0:
+            continue
+        frame_rate = 1.0*float(nums[0]) / float(nums[1])
+        if frame_rate != 0:
+            r_frame_rate = frame_rate
+
+    return r_frame_rate
 
 # sanity check of the options
 if args.asis:
@@ -79,6 +104,21 @@ for vid in tqdm(all_videos, ncols=64):
                 "-qscale:v", "2",
                 v_dir+"/%8d.jpg"])
 
+    elif args.interval > 0:
+        basename = os.path.basename(vid).split('.')[0]
+	r_frame_rate = get_frame_rate(vid)
+	if r_frame_rate == 0:
+	    print "frame rate is 0, skip: %s"%vid
+	    continue
+	call(["ffmpeg",
+		"-loglevel","panic",
+		"-i",vid,
+		"-vf","scale=%d:%d" % (args.width,args.height),
+		"-vf","select=not(mod(n\,%d*%f))" % (args.interval,r_frame_rate),
+                "-vsync","vfr",
+		"-qscale:v","2",
+		v_dir+"/%6d.jpg"])
+    
     else:
         call(["ffmpeg",
                 "-loglevel", "panic",
