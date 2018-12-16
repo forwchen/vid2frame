@@ -73,6 +73,8 @@ optional arguments:
                         starts from 1
   -n NUM_FRAME, --num_frame NUM_FRAME
                         uniformly sample n frames, this will override --skip
+  -r INTERVAL, --interval INTERVAL
+                        extract one frame every r seconds
 ```
 #### Notes
 * The frames will be stored as strings of their binary content, i.e. they are NOT decoded. Both LMDB and HDF5 are key-value storage, the keys are in the format of `video_name/frame_id` (assuming there are no two videos with the same name).
@@ -87,6 +89,7 @@ optional arguments:
 * Sampling options (exclusive):
     1. Keep one of frame every `k` frames (default 1, i.e. keep every frame) (--skip)
     2. Uniformly sample `n` frames (--num_frame). For example: If there are 10 frames, --skip=2 will sample frames 1,3,5,7,9 and --num_frame=4 will sample frames 1,4,7,10.
+    3. Sample one frame every `r` seconds (--interval) or 1/r FPS. For r==1, its 1 FPS, and r==2, its 0.5 FPS.
     
 #### Sample usage
 * Extract frame of videos in split-0 generated above:
@@ -130,4 +133,4 @@ The script outputs the size of the last image and time to iterate over whole dat
 ## Common issues
 * `RuntimeError: Unable to create link (name already exists)`
 
-This is caused by writing duplicate frames to a non-empty HDF5 database.
+   This is caused by writing duplicate frames to a non-empty HDF5 database.
