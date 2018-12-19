@@ -114,7 +114,7 @@ More samples:
 `python vid2frame.py split-sample.pkl split-0 frames-0.lmdb LMDB -H 240 -W 360`
 
 ### 3. (Optional) Test reading from database using `test_read_db.py`
-`test_read_db.py` provides sample code to iterate, read and decode frames in databases, it also checks for broken images.
+`test_read_db.py` provides sample code to iterate, read and decode frames in LMDB/HDF5 databases, it also checks for broken images. 
 #### Note
 * Opening images from string buffer: `img = Image.open(StringIO(v))`
 * Reading string from HDF5 db: `s = np.asarray(db_vid[fid]).tostring()`
@@ -122,7 +122,7 @@ More samples:
 #### Sample usage
 `python test_read_db.py frames-1.lmdb` or `python test_read_db.py frames-0.hdf5`
 
-The script outputs the size of the last image and time to iterate over whole database.
+The script outputs the number of frames in the database, the size of the last image and time to iterate over whole database.
 
 ## Dependencies
 * Python 2.7
