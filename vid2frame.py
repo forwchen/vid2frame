@@ -157,7 +157,7 @@ for vid in tqdm(all_videos, ncols=64):
             key = "%s/%08d" % (vvid, fid)   # by padding zeros, frames in db are stored in order
             frame_db[key] = np.void(s)
 
-    #call(["rm", "-rf", v_dir])
+    call(["rm", "-rf", v_dir])
     done_videos.add(vvid)
 
 
